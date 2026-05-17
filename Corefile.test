@@ -1,0 +1,8 @@
+# CoreDNS bind explicitly to 127.0.0.1 (evita conflicto con :53)
+. {
+    bind 127.0.0.1
+    cache
+    hosts /etc/coredns/blacklist.txt { fallthrough }
+    forward . 8.8.8.8
+    errors
+}

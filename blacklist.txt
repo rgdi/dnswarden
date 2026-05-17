@@ -1,0 +1,48 @@
+# ── Blacklist local — SuperSmartAI Trader DoH ──────────────────────────
+# Formato: IP.blockeada  dominio.tld
+# IP=0.0.0.0 significa "responder NXDOMAIN / 0.0.0.0"
+# ============================================================
+
+# ── Web Proxies — anti-circumvention ──────────────────────
+0.0.0.0 proxy.org
+0.0.0.0 webproxy.net
+0.0.0.0 kproxy.com
+0.0.0.0 anonymouse.org
+0.0.0.0 filterbypass.me
+0.0.0.0 hide.me
+0.0.0.0 hidemyass.com
+0.0.0.0 nordvpn.com
+0.0.0.0 nordvpn.org
+0.0.0.0 protonvpn.com
+0.0.0.0 protonvpn.net
+0.0.0.0 windscribe.com
+0.0.0.0 expressvpn.com
+0.0.0.0 surfshark.com
+0.0.0.0 ultrasurf.us
+0.0.0.0 psiphon3.com
+0.0.0.0 lantern.io
+0.0.0.0 betternet.co
+0.0.0.0 hotspot-shield.com
+0.0.0.0 tunnelbear.com
+0.0.0.0 touchvpn.net
+0.0.0.0 hola.org
+0.0.0.0 cyberghost.com
+0.0.0.0 zenmate.com
+0.0.0.0 browsec.com
+0.0.0.0 anonymox.com
+0.0.0.0 adobe://x
+0.0.0.0 urltwitter.com
+0.0.0.0 proxyweb.org
+0.0.0.0 proxysite.com
+0.0.0.0 vpnbook.com
+0.0.0.0 vpnaccount.org
+0.0.0.0 freevpn.me
+0.0.0.0 securityKIS.com
+
+# ── Malware & C2 known domains ─────────────────────────────
+0.0.0.0 malware-test.cloudflare-dns.com
+# 0.0.0.0 c2.evil.net
+# 0.0.0.0 payload.bad actor.com
+
+# ── Adult content (Cloudflare Family ya cubre la mayoría, esto es extra) ──
+# 0.0.0.0 adult.example.com

@@ -1,0 +1,53 @@
+services:
+  # ── CoreDNS: resolución DNS + caché + bloqueo ───────────────────────
+  # IMPORTANTE: usa network_mode=host para绑到 127.0.0.1:53
+  # Asegúrate de que systemd-resolved no esté en :53, o cambia a :10053
+  coredns:
+    image: coredns/coredns:1.11.1
+    container_name: doh-coredns
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ./Corefile:/etc/coredns/Corefile:ro
+      - ./blacklist.txt:/etc/coredns/blacklist.txt:ro
+    command: -conf /etc/coredns/Corefile
+    mem_limit: 64m
+    memswap_limit: 64m
+    cpu_shares: 128
+    healthcheck:
+      test: ["CMD", "coredns", "-plugins"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  # ── Python DoH proxy: RFC 8484 → CoreDNS ─────────────────────────────
+  # Compatible con Chrome/Chromebook (HTTP/1.1 GET/POST)
+  doh-proxy:
+    image: python:3.13-slim
+    container_name: doh-proxy
+    restart: unless-stopped
+    ports:
+      - "54321:54321/tcp"   # DoH RFC 8484
+      - "5053:5053/tcp"     # DNS plano TCP (fallback)
+    volumes:
+      - ./doh-proxy.py:/doh-proxy.py:ro
+    command: python3 -u /doh-proxy.py
+    mem_limit: 32m
+    memswap_limit: 32m
+    cpu_shares: 64
+    depends_on:
+      coredns:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5054/health', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    networks:
+      - doh-net
+
+networks:
+  doh-net:
+    driver: bridge

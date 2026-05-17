@@ -1,0 +1,55 @@
+version: "3.8"
+
+services:
+  # ── CoreDNS: resolución DNS + caché + bloqueo ───────────────────────
+  coredns:
+    image: coredns/coredns:1.11.1
+    container_name: doh-coredns
+    restart: unless-stopped
+    expose:
+      - "1053/udp"
+    volumes:
+      - ./Corefile.test:/etc/coredns/Corefile:ro
+      - ./blacklist.txt:/etc/coredns/blacklist.txt:ro
+    command: -conf /etc/coredns/Corefile
+    mem_limit: 64m
+    memswap_limit: 64m
+    cpu_shares: 128
+    networks:
+      - doh-net
+    healthcheck:
+      test: ["CMD", "coredns", "-plugins"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  # ── Python DoH proxy (test: upstream 8.8.8.8) ───────────────────────
+  doh-proxy:
+    image: python:3.13-slim
+    container_name: doh-proxy
+    restart: unless-stopped
+    ports:
+      - "54321:54321/tcp"
+      - "5053:5053/tcp"
+    volumes:
+      - ./doh-proxy.py:/doh-proxy.py:ro
+    command: python3 -u /doh-proxy.py
+    mem_limit: 32m
+    memswap_limit: 32m
+    cpu_shares: 64
+    depends_on:
+      coredns:
+        condition: service_healthy
+    networks:
+      - doh-net
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5054/health', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+networks:
+  doh-net:
+    driver: bridge
